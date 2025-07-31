@@ -1,10 +1,16 @@
 resource "aws_instance" "main_ec2_instances" {
-  count                  = 2
+  count                  = 1
   ami                    = data.aws_ami.amzn_linux3.id
   instance_type          = "t4g.micro"
   subnet_id              = module.vpc-main.private_subnets[count.index]
   iam_instance_profile   = aws_iam_instance_profile.ssm_instance_profile.name
   vpc_security_group_ids = [aws_security_group.main-vpc-default-sg.id, aws_security_group.main-vpc-app-sg.id]
+  user_data              = <<-EOF
+              #!/bin/bash
+              sudo amazon-linux-extras install -y nginx1
+              sudo systemctl enable nginx
+              sudo systemctl start nginx
+              EOF
   tags = {
     Name = "main-vm-${count.index + 1}"
   }
