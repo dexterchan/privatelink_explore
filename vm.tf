@@ -23,7 +23,7 @@ resource "aws_instance" "client_ec2_instances" {
   instance_type          = "t4g.micro"
   subnet_id              = module.vpc-client.private_subnets[count.index]
   iam_instance_profile   = aws_iam_instance_profile.ssm_instance_profile.name
-  vpc_security_group_ids = [aws_security_group.client-vpc-default-sg.id]
+  vpc_security_group_ids = [aws_security_group.client-vpc-default-sg.id, aws_security_group.client-vpc-app-sg.id]
   tags = {
     Name = "client-vm-${count.index + 1}"
   }

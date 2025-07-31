@@ -46,17 +46,24 @@ resource "aws_security_group" "client-vpc-default-sg" {
     Terraform = "true"
   }
 }
+
+resource "aws_security_group" "client-vpc-app-sg" {
+  name        = "client-vpc-app-sg"
+  description = "Allow all HTTP ingress"
+  vpc_id      = module.vpc-client.vpc_id
+}
+
 resource "aws_security_group" "client-privatelin-endpt-sg" {
   name        = "client-privatelink-endpt"
   description = "Allow HTTP ingress from client-vpc-default-sg"
   vpc_id      = module.vpc-client.vpc_id
 
   ingress {
-    description     = "Allow HTTP from client-vpc-default-sg"
+    description     = "Allow HTTP from client-vpc-app-sg"
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.client-vpc-default-sg.id]
+    security_groups = [aws_security_group.client-vpc-app-sg.id]
   }
 
   egress {
