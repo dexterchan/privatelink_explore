@@ -1,3 +1,10 @@
+locals {
+  s3_read_resources = [
+    "arn:aws:s3:::${var.s3_read_bucket}",
+    "arn:aws:s3:::${var.s3_read_bucket}/*"
+  ]
+}
+
 resource "aws_instance" "main_ec2_instances" {
   count                  = 1
   ami                    = data.aws_ami.amzn_linux3.id
@@ -68,3 +75,25 @@ resource "aws_iam_instance_profile" "ssm_instance_profile" {
   role = aws_iam_role.ssm_role.name
 }
 
+resource "aws_iam_policy" "s3_read_access_policy" {
+  count  = var.enable_s3_read_access ? 1 : 0
+  name   = "ec2_ssm_s3_read_access"
+  policy = data.aws_iam_policy_document.s3_read_access[0].json
+}
+
+data "aws_iam_policy_document" "s3_read_access" {
+  count = var.enable_s3_read_access ? 1 : 0
+  statement {
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+    resources = local.s3_read_resources
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_s3_read_access" {
+  count      = var.enable_s3_read_access ? 1 : 0
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = aws_iam_policy.s3_read_access_policy[0].arn
+}

@@ -45,3 +45,14 @@ variable "availability_zones" {
   type        = list(string)
   default     = ["us-west-2a"]
 }
+
+variable "s3_read_bucket" {
+  description = "S3 bucket for read access."
+  type        = string
+}
+
+variable "enable_s3_read_access" {
+  description = "Enable S3 read access for EC2 instances."
+  type        = bool
+  default     = false
+}
